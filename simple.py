@@ -1,7 +1,6 @@
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from byerecaptcha import solveRecaptcha
 from selenium import webdriver
 from time import sleep
 import unicodedata
