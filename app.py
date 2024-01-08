@@ -8,11 +8,24 @@ import random
 import json
 import re
 
+def getProxy() :
+    with open("proxies.txt") as f :
+        proxies = f.readlines()
+        proxy = proxies[random.randint(0,len(proxies))]
+    px = ""
+    for x in proxy :
+        if x.isalpha() == False :
+            px += x
+        else : break
+    proxy = px[:-1]
+    return proxy
+
 def linkedin(country, city, job):
     options = Options()
+    options.add_argument("--headless")
     chrome = webdriver.Chrome(options=options)
     chrome.get(f'https://www.google.com/search?q={city} AND {job} -inurl: dir/ email "@gmail.com" site:{country}.linkedin.com/in/ OR site:{country}.linkedin.com/pub/')
-    sleep(5)
+    sleep(2)
     for i in range(8):
         chrome.execute_script("window.scrollTo(0,document.body.scrollHeight)")  
         sleep(1)
@@ -55,8 +68,9 @@ def linkedin(country, city, job):
                         json.dump(data,w)  
     except : pass
 
-jobs = ["affiliate","management" ,"web developer", "ceo", "seo", "finance", "accounting","programming","insurance"]
-countries = ["UK","IT","ES","CA","SE","DE","FR","BZ"]
+jobs = ["affiliate","management" ,"web development", "seo", "finance", "accounting","programming","insurance", "crypto", "marketing"]
+countries = ["UK","IT","ES","CA","SE","DE","FR","BZ","CZ", "MX", "FI", "PL", "NO", "PT", "RO"]
+
 while True :
     job = random.choice(jobs)
     country = random.choice(countries)
@@ -68,5 +82,5 @@ while True :
                 cities.append(c["name"])
     city = random.choice(cities)
     linkedin(country, city, job)
-    sleep(random.randint(30,40))
+    sleep(random.randint(40,55))
         
