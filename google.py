@@ -11,7 +11,7 @@ import re
 
 def linkedin(state,keyword,code):
     options = Options()
-    #options.add_argument("--headless") 
+    options.add_argument("--headless") 
     chrome = webdriver.Chrome(options=options)
     chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
     sleep(2)
@@ -22,7 +22,6 @@ def linkedin(state,keyword,code):
             chrome.find_element(By.CSS_SELECTOR, 'a[aria-label="Plus de résultats"]').click()
         except : pass
         sleep(1)
-
 
     links = chrome.find_elements(By.TAG_NAME, "h3")
 
@@ -47,7 +46,7 @@ def linkedin(state,keyword,code):
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             #emails = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', txt) 
             ph = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', txt)
-            if len(ph) != 0  :
+            if len(ph) != 0 and code in ph[0] :
                 new_data = {
                     "Full Name" : fullName,
                     "Country": "United States" ,
@@ -63,10 +62,13 @@ def linkedin(state,keyword,code):
                         json.dump(data,w)  
     except : pass
 
+keywords = ["management", "fitness", "seo"]
+
 with open("geo.json", 'r') as f :
     states = json.loads(f.read())
     while True :
+        keyword = random.choice(keywords)
         state = random.choice(list(states))
         for code in states[state] :
-            linkedin(state, "marketing", code)
-            sleep(40)
+            linkedin(state, keyword, code)
+            sleep(random.randint(45,55))
