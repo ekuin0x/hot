@@ -62,7 +62,7 @@ def linkedin(state,keyword,code):
                         json.dump(data,w)  
     except : pass
 
-keywords = ["management", "fitness", "seo"]
+keywords = ["management", "lawyer", "fitness", "seo", "sales", "cybersecurity", "doctor","ecommerce", "real estate agent"]
 
 with open("geo.json", 'r') as f :
     states = json.loads(f.read())
@@ -71,4 +71,4 @@ with open("geo.json", 'r') as f :
         state = random.choice(list(states))
         for code in states[state] :
             linkedin(state, keyword, code)
-            sleep(random.randint(45,55))
+            sleep(random.randint(50,100))
