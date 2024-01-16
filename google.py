@@ -8,9 +8,18 @@ import unicodedata
 import random
 import json
 import re
+import threading
+
+def proxy() :
+    with open("p.txt", 'r') as f :
+        data = f.readlines()
+        return random.choice(data)
 
 def linkedin(state,keyword,code):
+    p = proxy()
+    print(p)
     options = Options()
+    #options.add_argument(f"--proxy-server={p}")
     options.add_argument("--headless") 
     chrome = webdriver.Chrome(options=options)
     chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
@@ -47,6 +56,7 @@ def linkedin(state,keyword,code):
             #emails = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', txt) 
             ph = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', txt)
             if len(ph) != 0 and code in ph[0] :
+                print(f"phone number detected : {ph[0]} ")
                 new_data = {
                     "Full Name" : fullName,
                     "Country": "United States" ,
@@ -60,7 +70,9 @@ def linkedin(state,keyword,code):
                     data.append(new_data)
                     with open("phones.json", "w") as w :
                         json.dump(data,w)  
-    except : pass
+            
+    except :
+        pass
 
 keywords = ["management", "lawyer", "fitness", "seo", "sales", "cybersecurity", "doctor","ecommerce", "real estate agent"]
 
@@ -69,6 +81,8 @@ with open("geo.json", 'r') as f :
     while True :
         keyword = random.choice(keywords)
         state = random.choice(list(states))
-        for code in states[state] :
-            linkedin(state, keyword, code)
-            sleep(random.randint(50,100))
+        for code in states["Nevada"] :
+            t1 = threading.Thread(target=linkedin, args=(state, keyword, code,))
+            t1.start()
+            sleep(1)
+        sleep(60)
