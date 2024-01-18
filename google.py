@@ -17,10 +17,10 @@ def proxy() :
 
 def linkedin(state,keyword,code):
     p = proxy()
-    print(p)
     options = Options()
-    #options.add_argument(f"--proxy-server={p}")
-    options.add_argument("--headless") 
+    PROXY = "181.211.11.78:33145"
+    options.add_argument('--proxy-server=%s' % PROXY)
+    #options.add_argument("--headless") 
     chrome = webdriver.Chrome(options=options)
     chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
     sleep(2)
@@ -81,8 +81,11 @@ with open("geo.json", 'r') as f :
     while True :
         keyword = random.choice(keywords)
         state = random.choice(list(states))
-        for code in states["Nevada"] :
+        for code in states[state] :
+            '''
             t1 = threading.Thread(target=linkedin, args=(state, keyword, code,))
             t1.start()
+            '''
+            linkedin(state,keyword, code)
             sleep(1)
-        sleep(60)
+        sleep(90)

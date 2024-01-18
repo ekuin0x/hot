@@ -2,20 +2,23 @@ from zenrows import ZenRowsClient
 from time import sleep
 import unicodedata
 import threading
+import requests
 import random
 import json
 import re
 
-client = ZenRowsClient("1a0b5a90d9a65a28eb7da2982827cc0df131c56a")
-params = {"js_render":"true","autoparse":"true","premium_proxy":"true"}
+client = ZenRowsClient("53b78420862b3631011daf85ae7acbb17843ed92")
+
+
 
 def linkedin(state,keyword,code):
-    url = 'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/'
-    response = client.get(url,params=params).text
+    url = f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/'
+    payload = { 'api_key': '33a30461da49603a36091e769f711c37', 'url': url, 'render': True, 'autoparse': True } 
+    response = requests.get('https://api.scraperapi.com/', params=payload).text
     results = json.loads(response)
     for result in results["organic_results"] :
-        description = result["description"]
-        source = result["displayed_link"]
+        description = result["snippet"]
+        source = result["link"]
         name = ""
         for x in result["title"] :
             if x in ["–", ",","-", "  "] :
@@ -54,8 +57,8 @@ with open("geo.json", 'r') as f :
     while True :
         keyword = random.choice(keywords)
         state = random.choice(list(states))
-        for code in states["Nevada"] :
+        for code in states[state] :
             t1 = threading.Thread(target=linkedin, args=(state, keyword, code,))
             t1.start()
             sleep(1)
-        sleep(3000)
+        sleep(15)
