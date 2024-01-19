@@ -1,6 +1,4 @@
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from time import sleep
@@ -10,31 +8,41 @@ import json
 import re
 import threading
 
+
+with open("geo.json", 'r') as f :
+    states = json.loads(f.read())
+
 def proxy() :
     with open("p.txt", 'r') as f :
         data = f.readlines()
-        return random.choice(data)
+        p = random.choice(data)
+        proxy = ""
+    for c in p : 
+        if c.isalpha() == True  : 
+            break
+        else : proxy += c
+    return proxy[:-1]
+
 
 def linkedin(state,keyword,code):
-    p = proxy()
     options = Options()
-    PROXY = "181.211.11.78:33145"
-    options.add_argument('--proxy-server=%s' % PROXY)
+    PROXY = proxy()
+    options.add_argument('--proxy-server=http://{}'.format(PROXY))
+    options.add_argument('--window-size=150,50')
     #options.add_argument("--headless") 
     chrome = webdriver.Chrome(options=options)
     chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
     sleep(2)
-    # SCROLL DOWN
-    for i in range(10):
-        chrome.execute_script("window.scrollTo(0,document.body.scrollHeight)")  
-        try : 
-            chrome.find_element(By.CSS_SELECTOR, 'a[aria-label="Plus de résultats"]').click()
-        except : pass
-        sleep(1)
+    try:   
+        # SCROLL DOWN
+        for i in range(10):
+            chrome.execute_script("window.scrollTo(0,document.body.scrollHeight)")  
+            try : 
+                chrome.find_element(By.CSS_SELECTOR, 'a[aria-label="Plus de résultats"]').click()
+            except : pass
+            sleep(1)
+        links = chrome.find_elements(By.TAG_NAME, "h3")
 
-    links = chrome.find_elements(By.TAG_NAME, "h3")
-
-    try :
         for i in range(len(links)-1) :
             link = chrome.find_elements(By.TAG_NAME, "h3")[i].text
             txt = chrome.find_elements(By.CSS_SELECTOR, "div[style='-webkit-line-clamp:2']")[i].text
@@ -70,22 +78,23 @@ def linkedin(state,keyword,code):
                     data.append(new_data)
                     with open("phones.json", "w") as w :
                         json.dump(data,w)  
-            
+            states[state].remove(code)
+
     except :
         pass
 
 keywords = ["management", "lawyer", "fitness", "seo", "sales", "cybersecurity", "doctor","ecommerce", "real estate agent"]
 
-with open("geo.json", 'r') as f :
-    states = json.loads(f.read())
-    while True :
-        keyword = random.choice(keywords)
-        state = random.choice(list(states))
-        for code in states[state] :
-            '''
-            t1 = threading.Thread(target=linkedin, args=(state, keyword, code,))
-            t1.start()
-            '''
-            linkedin(state,keyword, code)
-            sleep(1)
-        sleep(90)
+
+while True :
+    for keyword in keywords :
+        for state in states :
+            print(state + "--------" + keyword)
+            max = 0
+            for code in states[state] :
+                if max <= 2 :
+                    t = threading.Thread(target=linkedin, args=(state, keyword, code,))
+                    t.start()
+                    max += 1
+                else : break
+            sleep(60)
