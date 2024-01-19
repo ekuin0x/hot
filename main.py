@@ -3,17 +3,21 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 from time import sleep
 import unicodedata
+import threading
 import random
 import json
 import re
-import threading
-
-
+'''
+keywords = str(input("enter keyowrds to scrape (comma ',' between each keyword) :"))
+state = str(input("Specify states (Seperate By comma ',') / Leave empty for full search : "))
+'''
+# GET ALL US STATES AREA CODES FOR PHONE NUMBERS FILTERING
 with open("geo.json", 'r') as f :
     states = json.loads(f.read())
 
+# GET A RANDOM PROXY FROM PROXIES.TXT AND CLEA
 def proxy() :
-    with open("p.txt", 'r') as f :
+    with open("proxies.txt", 'r') as f :
         data = f.readlines()
         p = random.choice(data)
         proxy = ""
@@ -29,11 +33,11 @@ def linkedin(state,keyword,code):
     PROXY = proxy()
     options.add_argument('--proxy-server=http://{}'.format(PROXY))
     options.add_argument('--window-size=150,50')
-    #options.add_argument("--headless") 
+    options.add_argument("--headless") 
     chrome = webdriver.Chrome(options=options)
-    chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
-    sleep(2)
-    try:   
+    try :
+        chrome.get(f'https://google.com/search?q="{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/')
+        sleep(2)   
         # SCROLL DOWN
         for i in range(10):
             chrome.execute_script("window.scrollTo(0,document.body.scrollHeight)")  
@@ -78,7 +82,7 @@ def linkedin(state,keyword,code):
                     data.append(new_data)
                     with open("phones.json", "w") as w :
                         json.dump(data,w)  
-            states[state].remove(code)
+
 
     except :
         pass
@@ -88,13 +92,13 @@ keywords = ["management", "lawyer", "fitness", "seo", "sales", "cybersecurity", 
 
 while True :
     for keyword in keywords :
-        for state in states :
-            print(state + "--------" + keyword)
-            max = 0
-            for code in states[state] :
-                if max <= 2 :
-                    t = threading.Thread(target=linkedin, args=(state, keyword, code,))
-                    t.start()
-                    max += 1
-                else : break
-            sleep(60)
+        state = random.choice(list(states))
+        print(state + "--------" + keyword)
+        max = 0
+        for code in states[state] :
+            if max <= 4 :
+                t = threading.Thread(target=linkedin, args=(state, keyword, code,))
+                t.start()
+                max += 1
+            else : break
+        sleep(30)
