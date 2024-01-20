@@ -42,8 +42,7 @@ def linkedin(state,keyword,code) :
         for result in soup.select('.tF2Cxc'):
             title = result.select_one('.DKV0Md').text
             body = result.select_one(".VwiC3b").text
-            link = result.select_one('.yuRUbf a')['href']
-            print(link)
+            li = result.select_one('.yuRUbf a')['href']
             name = ""
             for x in title :
                 if x in ["–", ",","-", "  "] :
@@ -58,6 +57,7 @@ def linkedin(state,keyword,code) :
                         break;
             if exist == 1 : break
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
+            link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
             ph = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
             if len(ph) != 0 and code in ph[0] :
                 print(f"phone number detected : {ph[0]} ")
@@ -80,11 +80,10 @@ def linkedin(state,keyword,code) :
 keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
 while True :
     keyword = random.choice(keywords)
-    state = random.choice(list(states))
-
-    for i in range(4):
-        print("Started")
+    for i in range(6):
+        state = random.choice(list(states))
         code = random.choice(list(states[state]))
         t = threading.Thread(target=linkedin, args=(state, keyword, code,))
         t.start()
-    sleep(25)
+    print("Active Threads :" + str(len(threading.enumerate())))
+    sleep(15)
