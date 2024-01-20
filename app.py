@@ -1,15 +1,26 @@
+from bs4 import BeautifulSoup
 from flask import Flask
+import requests, lxml
+from time import sleep
+import unicodedata
+import threading
 import requests
 import random
+import json
+import re
 
 app = Flask(__name__)
 
 # GET A RANDOM PROXY FROM PROXIES.TXT AND CLEA
 
+with open("geo.json", 'r') as f :
+    states = json.loads(f.read())
+
+
 def proxy() :
     res = requests.get("https://raw.githubusercontent.com/zloi-user/hideip.me/main/http.txt").text
     proxies = res.splitlines()
-    c = random.choice(proxies)
+    p = random.choice(proxies)
     proxy = ""
     for c in p : 
         if c.isalpha() == True  : 
@@ -22,7 +33,7 @@ headers = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
 }
 
-def linkedin() :
+def linkedin(state, keyword,code) :
     PROXY = proxy()
     params = {
         'q': f'"{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
@@ -43,12 +54,14 @@ def linkedin() :
                     break
                 else : name += x
             exist = 0
+            '''
             with open("phones.json", 'r') as f :
                 data = json.loads(f.read())
                 for record in data :
                     if record["Full Name"] == name :
                         exist = 1
                         break;
+            '''
             if exist == 1 : break
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             ph = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
@@ -62,15 +75,19 @@ def linkedin() :
                     "keyword" : keyword,
                     "source" : link
                 }
+                '''
                 with open("phones.json","r") as f :
                     data = json.loads(f.read()) 
                     data.append(new_data)
                     with open("phones.json", "w") as w :
                         json.dump(data,w)  
+                '''
     except : 
         pass
 
-    keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
+
+keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"] 
+while True :
     keyword = random.choice(keywords)
     state = random.choice(list(states))
 
@@ -78,13 +95,13 @@ def linkedin() :
         code = random.choice(list(states[state]))
         t = threading.Thread(target=linkedin, args=(state, keyword, code,))
         t.start()
-    sleep(20)
+    sleep(25)
 
 
-@app.route("/")
-def main():
-    return proxies
-
+@app.route("/alive")
+def alive():
+    return "hello World"
+    
 
 if __name__ == '__main__' :
     app.run(debug=False,port=80)

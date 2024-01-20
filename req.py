@@ -76,3 +76,15 @@ def linkedin(state,keyword,code) :
                         json.dump(data,w)  
     except : 
         pass
+
+keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
+while True :
+    keyword = random.choice(keywords)
+    state = random.choice(list(states))
+
+    for i in range(4):
+        print("Started")
+        code = random.choice(list(states[state]))
+        t = threading.Thread(target=linkedin, args=(state, keyword, code,))
+        t.start()
+    sleep(25)
