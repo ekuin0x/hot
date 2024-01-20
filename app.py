@@ -4,7 +4,6 @@ import requests, lxml
 from time import sleep
 import unicodedata
 import threading
-import requests
 import random
 import json
 import re
@@ -104,4 +103,4 @@ def alive():
     
 
 if __name__ == '__main__' :
-    app.run(debug=False,port=80)
+    app.run(port = 5000, debug=False)
