@@ -91,8 +91,8 @@ keywords = ["Administrative assistant", "Customer service","Retail","Finance","G
 @app.route("/alive")
 def alive():
     keyword = random.choice(keywords)
-    state = random.choice(list(states))
-    for i in range(4):
+    for i in range(12):
+        state = random.choice(list(states))
         print("started")
         code = random.choice(list(states[state]))
         t = threading.Thread(target=linkedin, args=(state, keyword, code,))
