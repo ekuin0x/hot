@@ -1,33 +1,28 @@
-from bs4 import BeautifulSoup
-import requests, lxml
-from time import sleep
-import unicodedata
-import threading
+from flask import Flask
+import requests
 import random
-import json
-import re
 
-headers = {
-    'User-agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
-}
+app = Flask(__name__)
 
-# GET ALL US STATES AREA CODES FOR PHONE NUMBERS FILTERING
-with open("geo.json", 'r') as f :
-    states = json.loads(f.read())
+# GET A RANDOM PROXY FROM PROXIES.TXT AND CLEA
 
 def proxy() :
-    with open("proxies.txt", 'r') as f :
-        data = f.readlines()
-        p = random.choice(data)
-        proxy = ""
+    res = requests.get("https://raw.githubusercontent.com/zloi-user/hideip.me/main/http.txt").text
+    proxies = res.splitlines()
+    c = random.choice(proxies)
+    proxy = ""
     for c in p : 
         if c.isalpha() == True  : 
             break
         else : proxy += c
     return proxy[:-1]
 
-def linkedin(state,keyword,code) : 
+headers = {
+    'User-agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+}
+
+def linkedin() :
     PROXY = proxy()
     params = {
         'q': f'"{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
@@ -35,7 +30,6 @@ def linkedin(state,keyword,code) :
         'hl': 'en',
     }
     proxies = {'https' : "http://" + PROXY}
-    
     try :
         html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params)
         soup = BeautifulSoup(html.text, 'lxml')
@@ -43,7 +37,6 @@ def linkedin(state,keyword,code) :
             title = result.select_one('.DKV0Md').text
             body = result.select_one(".VwiC3b").text
             link = result.select_one('.yuRUbf a')['href']
-            print(link)
             name = ""
             for x in title :
                 if x in ["–", ",","-", "  "] :
@@ -76,3 +69,22 @@ def linkedin(state,keyword,code) :
                         json.dump(data,w)  
     except : 
         pass
+
+    keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
+    keyword = random.choice(keywords)
+    state = random.choice(list(states))
+
+    for i in range(4):
+        code = random.choice(list(states[state]))
+        t = threading.Thread(target=linkedin, args=(state, keyword, code,))
+        t.start()
+    sleep(20)
+
+
+@app.route("/")
+def main():
+    return proxies
+
+
+if __name__ == '__main__' :
+    app.run(debug=False,port=80)
