@@ -82,6 +82,7 @@ def linkedin(state, keyword,code) :
                         json.dump(data,w)  
                 '''
     except : 
+        print("proxy failed")
         pass
 
 
