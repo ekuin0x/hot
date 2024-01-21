@@ -36,7 +36,7 @@ def linkedin(state,keyword,code) :
     }
     proxies = {'https' : "http://" + PROXY}
     
-    try :
+    try :   
         html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params)
         soup = BeautifulSoup(html.text, 'lxml')
         for result in soup.select('.tF2Cxc'):
@@ -79,11 +79,12 @@ def linkedin(state,keyword,code) :
 
 keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
 while True :
-    keyword = random.choice(keywords)
-    for i in range(6):
+    keyword = "Real Estate Agent"
+    for i in range(12):
         state = random.choice(list(states))
         code = random.choice(list(states[state]))
         t = threading.Thread(target=linkedin, args=(state, keyword, code,))
         t.start()
     print("Active Threads :" + str(len(threading.enumerate())))
+
     sleep(15)
