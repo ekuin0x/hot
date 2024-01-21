@@ -17,7 +17,7 @@ with open("geo.json", 'r') as f :
     states = json.loads(f.read())
 
 def proxy() :
-    with open("proxies.txt", 'r') as f :
+    with open("prx.txt", 'r') as f :
         data = f.readlines()
         p = random.choice(data)
         proxy = ""
@@ -37,7 +37,7 @@ def linkedin(state,keyword,code) :
     proxies = {'https' : "http://" + PROXY}
     
     try :   
-        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params)
+        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=22)
         soup = BeautifulSoup(html.text, 'lxml')
         for result in soup.select('.tF2Cxc'):
             title = result.select_one('.DKV0Md').text
@@ -80,11 +80,11 @@ def linkedin(state,keyword,code) :
 keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
 while True :
     keyword = "Real Estate Agent"
-    for i in range(12):
+    for i in range(45):
         state = random.choice(list(states))
         code = random.choice(list(states[state]))
         t = threading.Thread(target=linkedin, args=(state, keyword, code,))
         t.start()
     print("Active Threads :" + str(len(threading.enumerate())))
 
-    sleep(15)
+    sleep(20)
