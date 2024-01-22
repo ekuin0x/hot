@@ -16,6 +16,9 @@ headers = {
 with open("geo.json", 'r') as f :
     states = json.loads(f.read())
 
+with open("jobs.json", "r") as f :
+    keywords = json.loads(f.read())
+
 def proxy() :
     with open("prx.txt", 'r') as f :
         data = f.readlines()
@@ -27,10 +30,11 @@ def proxy() :
         else : proxy += c
     return proxy[:-1]
 
-def linkedin(state,keyword,code) : 
+def linkedin(state,city,keyword,code) : 
     PROXY = proxy()
     params = {
         'q': f'"{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
+        #'q' : f'"{state}" AND "{city}" AND "{keyword}" AND "@gmail.com" site:www.linkedin.com/in/',
         'gl': 'us',
         'hl': 'en',
     }
@@ -55,17 +59,19 @@ def linkedin(state,keyword,code) :
                     if record["Full Name"] == name :
                         exist = 1
                         break;
-            if exist == 1 : break
+            if exist == 1 : 
+                break
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
-            ph = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
-            if len(ph) != 0 and code in ph[0] :
-                print(f"phone number detected : {ph[0]} ")
+            results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
+            #results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
+            if len(results) > 0  :
+                print(f"new number detected : {results[0]} ")
                 new_data = {
                     "Full Name" : fullName,
                     "Country": "United States" ,
                     "State" : state,
-                    "phone" : ph[0],
+                    "email" : results[0],
                     "keyword" : keyword,
                     "source" : link
                 }
@@ -77,14 +83,14 @@ def linkedin(state,keyword,code) :
     except : 
         pass
 
-keywords = ["Administrative assistant", "Customer service","Retail","Finance","Graphic designer","Healthcare","Insurance", "management", "lawyer", "fitness", "seo", "sales", "doctor","ecommerce", "real estate agent"]
 while True :
-    keyword = "Real Estate Agent"
-    for i in range(45):
-        state = random.choice(list(states))
-        code = random.choice(list(states[state]))
-        t = threading.Thread(target=linkedin, args=(state, keyword, code,))
+    keyword = random.choice(list(keywords))
+    state = random.choice(list(states))
+    code = random.choice(list(states[state]))
+    print(keyword)
+    for i in range(99):
+        
+        t = threading.Thread(target=linkedin, args=(state, "", keyword, code,))
         t.start()
-    print("Active Threads :" + str(len(threading.enumerate())))
-
-    sleep(20)
+    #print("Active Threads :" + str(len(threading.enumerate())))
+    sleep(15)

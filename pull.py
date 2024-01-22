@@ -21,4 +21,4 @@ while True :
             f.write(line+"\n")
 
     print("PROXIES REFRESHED.....")
-    time.sleep(30)
+    time.sleep(60)
