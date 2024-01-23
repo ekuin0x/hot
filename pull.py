@@ -5,6 +5,7 @@ import time
 sources = [
     "https://raw.githubusercontent.com/zloi-user/hideip.me/main/http.txt",
     "https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/master/http.txt",
+    "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt"
 ]
 
 while True :

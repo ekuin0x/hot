@@ -13,11 +13,11 @@ headers = {
 }
 
 # GET ALL US STATES AREA CODES FOR PHONE NUMBERS FILTERING
-with open("geo.json", 'r') as f :
+with open("geo.json", 'r', encoding = 'utf-8') as f :
     states = json.loads(f.read())
 
-with open("jobs.json", "r") as f :
-    keywords = json.loads(f.read())
+with open("jobs2.json", 'r') as f :
+    jobs = json.loads(f.read())
 
 def proxy() :
     with open("prx.txt", 'r') as f :
@@ -30,7 +30,7 @@ def proxy() :
         else : proxy += c
     return proxy[:-1]
 
-def linkedin(state,city,keyword,code) : 
+def linkedin(state,keyword,category,code) : 
     PROXY = proxy()
     params = {
         'q': f'"{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
@@ -41,7 +41,7 @@ def linkedin(state,city,keyword,code) :
     proxies = {'https' : "http://" + PROXY}
     
     try :   
-        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=22)
+        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=10)
         soup = BeautifulSoup(html.text, 'lxml')
         for result in soup.select('.tF2Cxc'):
             title = result.select_one('.DKV0Md').text
@@ -71,26 +71,32 @@ def linkedin(state,city,keyword,code) :
                     "Full Name" : fullName,
                     "Country": "United States" ,
                     "State" : state,
-                    "email" : results[0],
+                    "phone" : results[0],
                     "keyword" : keyword,
+                    "category" : category,
                     "source" : link
                 }
                 with open("phones.json","r") as f :
                     data = json.loads(f.read()) 
                     data.append(new_data)
                     with open("phones.json", "w") as w :
-                        json.dump(data,w)  
+                        json.dump(data,w) 
+
     except : 
         pass
 
 while True :
-    keyword = random.choice(list(keywords))
+    job = random.choice(list(jobs))
+    category = job["category"]
+    try : keyword = random.choice(job["keywords"])[0]
+    except : keyword = category
     state = random.choice(list(states))
-    code = random.choice(list(states[state]))
-    print(keyword)
-    for i in range(99):
-        
-        t = threading.Thread(target=linkedin, args=(state, "", keyword, code,))
+    code  = random.choice(list(states[state]))
+    print(f"//------------{category}---------{keyword}--------{state}-------//")
+    
+    for i in range(221):
+        t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
         t.start()
-    #print("Active Threads :" + str(len(threading.enumerate())))
-    sleep(15)
+    print("Active Threads :" + str(len(threading.enumerate())))
+    
+    sleep(10)
