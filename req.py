@@ -41,7 +41,7 @@ def linkedin(state,keyword,category,code) :
     proxies = {'https' : "http://" + PROXY}
     
     try :   
-        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=10)
+        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=5)
         soup = BeautifulSoup(html.text, 'lxml')
         for result in soup.select('.tF2Cxc'):
             title = result.select_one('.DKV0Md').text
@@ -94,9 +94,9 @@ while True :
     code  = random.choice(list(states[state]))
     print(f"//------------{category}---------{keyword}--------{state}-------//")
     
-    for i in range(221):
+    for i in range(399):
         t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
         t.start()
     print("Active Threads :" + str(len(threading.enumerate())))
     
-    sleep(6)
+    sleep(5)
