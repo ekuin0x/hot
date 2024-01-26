@@ -4,6 +4,7 @@ from time import sleep
 import unicodedata
 import threading
 import random
+import string
 import json
 import re
 
@@ -16,7 +17,7 @@ headers = {
 with open("geo.json", 'r', encoding = 'utf-8') as f :
     states = json.loads(f.read())
 
-with open("jobs2.json", 'r') as f :
+with open("jobs.json", 'r') as f :
     jobs = json.loads(f.read())
 
 def proxy() :
@@ -30,10 +31,13 @@ def proxy() :
         else : proxy += c
     return proxy[:-1]
 
+new_data = []
+
 def linkedin(state,keyword,category,code) : 
     PROXY = proxy()
+    variation = (random.choice(string.ascii_letters) + random.choice(string.ascii_letters)).lower()
     params = {
-        'q': f'"{state}" AND "{keyword}" AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
+        'q': f'"{state}" AND "{keyword}" AND {variation} AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
         #'q' : f'"{state}" AND "{city}" AND "{keyword}" AND "@gmail.com" site:www.linkedin.com/in/',
         'gl': 'us',
         'hl': 'en',
@@ -66,37 +70,48 @@ def linkedin(state,keyword,category,code) :
             results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
             #results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
             if len(results) > 0  :
-                print(f"new number detected : {results[0]} ")
-                new_data = {
-                    "Full Name" : fullName,
-                    "Country": "United States" ,
-                    "State" : state,
-                    "phone" : results[0],
-                    "keyword" : keyword,
-                    "category" : category,
-                    "source" : link
-                }
-                with open("phones.json","r") as f :
-                    data = json.loads(f.read()) 
-                    data.append(new_data)
-                    with open("phones.json", "w") as w :
-                        json.dump(data,w) 
+                if len(results[0]) > 11 and len(results[0]) < 18 :
+                    print("new number")
+                    new_record = {
+                        "Full Name" : fullName,
+                        "Country": "United States" ,
+                        "State" : state,
+                        "phone" : results[0],
+                        "keyword" : keyword,
+                        "category" : category,
+                        "source" : link
+                    }
+                    new_data.append(new_record)
 
     except : 
         pass
 
 while True :
     job = random.choice(list(jobs))
-    category = job["category"]
-    try : keyword = random.choice(job["keywords"])[0]
-    except : keyword = category
-    state = random.choice(list(states))
-    code  = random.choice(list(states[state]))
-    print(f"//------------{category}---------{keyword}--------{state}-------//")
-    
-    for i in range(399):
-        t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
-        t.start()
-    print("Active Threads :" + str(len(threading.enumerate())))
-    
-    sleep(5)
+    #category = job["category"]
+    #try : keyword = random.choice(job["keywords"])[0]
+    #except : keyword = category
+    '''
+    for state in list(states) :
+        print("------state----" + state)
+        for code in list(states[state]) :
+    '''
+    category = "real estate"
+    keyword = "real estate agent"
+    #state = "California"
+    for state in list(states) :
+        print(f"------------------- {state} -------------------")
+        for code in list(states[state]):
+            for i in range(449) :
+                t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
+                t.start()
+            sleep(5)
+
+        with open("phones.json","r") as f :
+            data = json.loads(f.read()) 
+            data.extend(new_data)
+            with open("phones.json", "w") as w :
+                json.dump(data,w) 
+
+        
+

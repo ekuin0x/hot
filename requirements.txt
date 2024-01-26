@@ -1,7 +1,0 @@
-beautifulsoup4
-requests
-gunicorn
-flask
-lxml
-
-
