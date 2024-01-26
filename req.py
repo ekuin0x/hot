@@ -57,7 +57,7 @@ def linkedin(state,keyword,category,code) :
                     break
                 else : name += x
             exist = 0
-            with open("phones.json", 'r') as f :
+            with open("data.json", 'r') as f :
                 data = json.loads(f.read())
                 for record in data :
                     if record["Full Name"] == name :
@@ -107,10 +107,11 @@ while True :
                 t.start()
             sleep(5)
 
-        with open("phones.json","r") as f :
+        with open("data.json","r") as f :
             data = json.loads(f.read()) 
-            data.extend(new_data)
-            with open("phones.json", "w") as w :
+            for new in new_data : 
+                data.append(new)
+            with open("data.json", "w") as w :
                 json.dump(data,w) 
 
         
