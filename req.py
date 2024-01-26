@@ -31,7 +31,7 @@ def proxy() :
         else : proxy += c
     return proxy[:-1]
 
-new_data = []
+
 
 def linkedin(state,keyword,category,code) : 
     PROXY = proxy()
@@ -100,6 +100,7 @@ while True :
     keyword = "real estate agent"
     #state = "California"
     for state in list(states) :
+        new_data = []
         print(f"------------------- {state} -------------------")
         for code in list(states[state]):
             for i in range(449) :
