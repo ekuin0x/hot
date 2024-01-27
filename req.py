@@ -56,6 +56,7 @@ def linkedin(state,keyword,category,code) :
                 if x in ["–", ",","-", "  "] :
                     break
                 else : name += x
+            '''
             exist = 0
             with open("data.json", 'r') as f :
                 data = json.loads(f.read())
@@ -64,7 +65,10 @@ def linkedin(state,keyword,category,code) :
                         exist = 1
                         break;
             if exist == 1 : 
+                print("already exists")
                 break
+            print("ignored asf")
+            '''
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
             results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
@@ -88,22 +92,14 @@ def linkedin(state,keyword,category,code) :
 
 while True :
     job = random.choice(list(jobs))
-    #category = job["category"]
-    #try : keyword = random.choice(job["keywords"])[0]
-    #except : keyword = category
-    '''
-    for state in list(states) :
-        print("------state----" + state)
-        for code in list(states[state]) :
-    '''
     category = "real estate"
     keyword = "real estate agent"
     #state = "California"
     for state in list(states) :
         new_data = []
-        print(f"------------------- {state} -------------------")
+        print(f"---------- {state}")
         for code in list(states[state]):
-            for i in range(449) :
+            for i in range(249) :
                 t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
                 t.start()
             sleep(5)
@@ -111,9 +107,11 @@ while True :
         with open("data.json","r") as f :
             data = json.loads(f.read()) 
             for new in new_data : 
-                data.append(new)
+                if new not in data :
+                    data.append(new)
+
             with open("data.json", "w") as w :
-                json.dump(data,w) 
+                json.dump(data,w)
 
         
 
