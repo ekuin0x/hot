@@ -37,8 +37,8 @@ def linkedin(state,keyword,category,code) :
     PROXY = proxy()
     variation = (random.choice(string.ascii_letters) + random.choice(string.ascii_letters)).lower()
     params = {
-        'q': f'"{state}" AND "{keyword}" AND {variation} AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
-        #'q' : f'"{state}" AND "{city}" AND "{keyword}" AND "@gmail.com" site:www.linkedin.com/in/',
+        #'q': f'"{state}" AND "{keyword}" AND {variation} AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
+        'q' : f'"{state}" AND "{keyword}" AND "@gmail.com" site:www.linkedin.com/in/',
         'gl': 'us',
         'hl': 'en',
     }
@@ -71,16 +71,16 @@ def linkedin(state,keyword,category,code) :
             '''
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
-            results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
-            #results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
+            #results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
+            results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
             if len(results) > 0  :
                 if len(results[0]) > 11 and len(results[0]) < 18 :
-                    print("new number")
+                    print("new email")
                     new_record = {
                         "Full Name" : fullName,
                         "Country": "United States" ,
                         "State" : state,
-                        "phone" : results[0],
+                        "email" : results[0],
                         "keyword" : keyword,
                         "category" : category,
                         "source" : link
@@ -92,8 +92,8 @@ def linkedin(state,keyword,category,code) :
 
 while True :
     job = random.choice(list(jobs))
-    category = "real estate"
-    keyword = "real estate agent"
+    category = "SEO"
+    keyword = "SEO"
     #state = "California"
     for state in list(states) :
         new_data = []
@@ -104,13 +104,13 @@ while True :
                 t.start()
             sleep(5)
 
-        with open("data.json","r") as f :
+        with open("seo.json","r") as f :
             data = json.loads(f.read()) 
             for new in new_data : 
                 if new not in data :
                     data.append(new)
 
-            with open("data.json", "w") as w :
+            with open("seo.json", "w") as w :
                 json.dump(data,w)
 
         
