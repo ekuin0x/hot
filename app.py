@@ -11,11 +11,10 @@ import re
 
 def api(keyword, country) :
     new_data = []
-    while len(new_data) <= 10 :
-        for i in range(99) :
-            t = threading.Thread(target=linkedin, args=(keyword,country,new_data))
-            t.start()
-        sleep(5)
+    for i in range(99) :
+        t = threading.Thread(target=linkedin, args=(keyword,country,new_data))
+        t.start()
+    sleep(5)
     return(new_data)
 
 while True : 
@@ -50,11 +49,12 @@ while True :
 
     keyword = random.choice(keywords)
 
+
     data = api(keyword, country)
     with open("estate.json", 'r') as f :
         local = json.loads(f.read())
         for new in data :
             if new not in local :
                 local.append(new)
-        with open("data.json", 'w') as w :
+        with open("estate.json", 'w') as w :
             json.dump(local, w)

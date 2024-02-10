@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests, lxml
-from time import sleep
 import unicodedata
 import threading
 import random
@@ -33,13 +32,13 @@ def linkedin(keyword,country,new_data) :
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     }
     PROXY = proxy()
-    print(variation)
-    for i in range(2) :
-        variation += random.choice(string.ascii_letters).lower()
-        if country in ["", "us","usa"] :
-            q = f'site:linkedin.com/in/ "{keyword}" AND "@gmail.com" AND {variation} '
-        else : 
-             q = f'site:{country}.linkedin.com/in/ "{keyword}" AND "@gmail.com" AND {variation} '
+    #variation = ""
+    #for i in range(2) :
+    #    variation += random.choice(string.ascii_letters).lower()
+    if country in ["", "us","usa"] :
+        q = f'site:linkedin.com/in/ intitle:{keyword} AND "@gmail.com" AND {variation} '
+    else : 
+         q = f'site:{country}.linkedin.com/in {keyword} AND "@gmail.com"'
     params = {'q' : q}
     proxies = {'https' : "http://" + PROXY}
     try :   
