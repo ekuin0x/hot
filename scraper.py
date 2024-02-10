@@ -6,20 +6,13 @@ import threading
 import random
 import string
 import json
-import sys
 import re
 
 headers = {
-    'User-agent':
+    'User-agent'
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
 }
-new_data = []
-# GET ALL US STATES AREA CODES FOR PHONE NUMBERS FILTERING
-with open("geo.json", 'r', encoding = 'utf-8') as f :
-    states = json.loads(f.read())
 
-with open("jobs.json", 'r') as f :
-    jobs = json.loads(f.read())
 
 def proxy() :
     with open("prx.txt", 'r') as f :
@@ -34,23 +27,25 @@ def proxy() :
 
 
 
-def linkedin(state,keyword,category,code) : 
-    PROXY = proxy()
-    variation = (random.choice(string.ascii_letters) + random.choice(string.ascii_letters)).lower()
-    countries = ["sa","ae" "kw", "qa", "il"]
-    iso = random.choice(countries)
-    params = {
-        #'q': f'"{state}" AND "{keyword}" AND {variation} AND phone AND ("{code}-" OR "({code})") site:www.linkedin.com/in/',
-        #'q' : f'"{state}" AND "{keyword}" AND {variation} AND email and "@gmail.com" site:www.linkedin.com/in/',
-        'q' : f'"{keyword}" AND "@gmail.com" site:{iso}.linkedin.com/in/',
-        'gl': 'us',
-        'hl': 'en',
+def linkedin(keyword,country,new_data) : 
+    headers = {
+    'User-agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     }
+    PROXY = proxy()
+    print(variation)
+    for i in range(2) :
+        variation += random.choice(string.ascii_letters).lower()
+        if country in ["", "us","usa"] :
+            q = f'site:linkedin.com/in/ "{keyword}" AND "@gmail.com" AND {variation} '
+        else : 
+             q = f'site:{country}.linkedin.com/in/ "{keyword}" AND "@gmail.com" AND {variation} '
+    params = {'q' : q}
     proxies = {'https' : "http://" + PROXY}
-    
     try :   
         html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=5)
         soup = BeautifulSoup(html.text, 'lxml')
+        
         for result in soup.select('.tF2Cxc'):
             title = result.select_one('.DKV0Md').text
             body = result.select_one(".VwiC3b").text
@@ -63,16 +58,16 @@ def linkedin(state,keyword,category,code) :
         
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
             link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
+            key = unicodedata.normalize('NFKD', keyword).encode('ascii', 'ignore').decode('utf-8')
             #results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
             results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
             if len(results) > 0  :
-                if len(results[0]) > 8 :
+                if len(results[0]) >= 10 :
+    
                     new_record = {
                         "Full Name" : fullName,
-                        "Country": iso ,
                         "email" : results[0],
-                        "keyword" : keyword,
-                        "category" : category,
+                        "keyword" : key,
                         "source" : link
                     }
                     new_data.append(new_record)
@@ -80,26 +75,5 @@ def linkedin(state,keyword,category,code) :
     except : 
         pass
 
-while True :
-    #keyword = sys.argv[1]
-    keyword = "investor"
-    state = ""
-    code = ""
-    category = ""
-    for i in range(299) :
-        t = threading.Thread(target=linkedin, args=(state, keyword,category, code,))
-        t.start()
-    
 
-    with open("estate.json","r") as f :
-        data = json.loads(f.read()) 
-        for new in new_data :
-            if new not in data :
-                print(new["email"])
-                data.append(new)
-        with open("estate.json", "w") as w :
-            json.dump(data,w)
-
-    sleep(5)
-        
 
