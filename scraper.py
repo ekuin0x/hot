@@ -12,7 +12,6 @@ headers = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
 }
 
-
 def proxy() :
     with open("prx.txt", 'r') as f :
         data = f.readlines()
@@ -24,21 +23,19 @@ def proxy() :
         else : proxy += c
     return proxy[:-1]
 
-
-
-def linkedin(keyword,country,new_data) : 
+def linkedin(keyword,country,new_data) :
     headers = {
     'User-agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     }
     PROXY = proxy()
-    #variation = ""
-    #for i in range(2) :
-    #    variation += random.choice(string.ascii_letters).lower()
+    variation = ""
+    for i in range(2) :
+        variation += random.choice(string.ascii_letters).lower()
     if country in ["", "us","usa"] :
-        q = f'site:linkedin.com/in/ intitle:{keyword} AND "@gmail.com" AND {variation} '
+        q = f'intitle:{keyword} AND "@gmail.com" AND {variation} site:linkedin.com/in'
     else : 
-         q = f'site:{country}.linkedin.com/in {keyword} AND "@gmail.com"'
+         q = f'"@gmail.com" site:linkedin.com/in intitle:"{keyword}" AND intext:{variation}'
     params = {'q' : q}
     proxies = {'https' : "http://" + PROXY}
     try :   
@@ -56,21 +53,21 @@ def linkedin(keyword,country,new_data) :
                 else : name += x
         
             fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
+            tit = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('utf-8')
             link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
             key = unicodedata.normalize('NFKD', keyword).encode('ascii', 'ignore').decode('utf-8')
             #results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
             results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
             if len(results) > 0  :
                 if len(results[0]) >= 10 :
-    
                     new_record = {
                         "Full Name" : fullName,
+                        "title" : tit,
                         "email" : results[0],
                         "keyword" : key,
                         "source" : link
                     }
                     new_data.append(new_record)
-
     except : 
         pass
 

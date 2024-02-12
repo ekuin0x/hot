@@ -1,4 +1,3 @@
-from scraper import linkedin
 from bs4 import BeautifulSoup
 import requests, lxml
 from time import sleep
@@ -9,52 +8,76 @@ import string
 import json
 import re
 
-def api(keyword, country) :
-    new_data = []
-    for i in range(99) :
-        t = threading.Thread(target=linkedin, args=(keyword,country,new_data))
-        t.start()
-    sleep(5)
-    return(new_data)
+
+def proxy() :
+    with open("prx.txt", 'r') as f :
+        data = f.readlines()
+        p = random.choice(data)
+        proxy = ""
+    for c in p : 
+        if c.isalpha() == True  : 
+            break
+        else : proxy += c
+    return proxy[:-1]
+
+headers = {
+    'User-agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+    }
+
+def linkedin(keyword,new_data) :
+    PROXY = proxy()
+    variation = random.choice(string.ascii_letters).lower() + random.choice(string.ascii_letters).lower()
+    q = f'intitle:"{keyword}" AND "@gmail.com" AND {variation} site:linkedin.com/in'
+    params = {'q' : q}
+    proxies = {'https' : "http://" + PROXY}
+    try :   
+        html = requests.get('https://www.google.com/search',headers=headers,proxies=proxies, params=params,timeout=5)
+        soup = BeautifulSoup(html.text, 'lxml')
+        
+        for result in soup.select('.tF2Cxc'):
+            title = result.select_one('.DKV0Md').text
+            body = result.select_one(".VwiC3b").text
+            li = result.select_one('.yuRUbf a')['href']
+            name = ""
+            for x in title :
+                if x in ["–", ",","-", "  "] :
+                    break
+                else : name += x
+        
+            fullName = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
+            tit = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('utf-8')
+            link = unicodedata.normalize('NFKD', li).encode('ascii', 'ignore').decode('utf-8')
+            key = unicodedata.normalize('NFKD', keyword).encode('ascii', 'ignore').decode('utf-8')
+            #results = re.findall(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', body)
+            results = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', body)
+            if len(results) > 0  :
+                if len(results[0]) >= 10 :
+                    new_record = {
+                        "Full Name" : fullName,
+                        "title" : tit,
+                        "email" : results[0],
+                        "keyword" : key,
+                        "source" : link
+                    }
+                    new_data.append(new_record)
+    except : 
+        pass
 
 while True : 
-    country = random.choice(["de", "ca"])
+    new_data = []
+    #countries = ["de","fr", "at", "bg", "cz", "fi", "hu", "lt", "nl", "es", "se", "uk"]
+    keyword = "business owner"
+    for i in range(250) :
+        t = threading.Thread(target=linkedin, args=(keyword,new_data))
+        t.start()
+    sleep(6)
 
-    if country == "ca" : 
-        keywords = [
-            "Property management sale",
-            "Real estate management selling",
-            "Property manager contact",
-            "Management selling properties",
-            "Commercial property management sale",
-            "Property management sales listings",
-            "Real estate manager for sale",
-            "Selling managed properties",
-            "Property management sell services",
-            "Ready to sell property management"
-        ]
-    else :
-        keywords = [
-            "Immobilienverwaltung Verkauf",
-            "Hausverwaltung Immobilienverkauf",
-            "Verkauf durch Verwalter",
-            "Immobilienverwalter Kontakt",
-            "Immobilienverwaltung Portfolio Verkauf"
-            "Gewerbeimmobilien Verwaltung Verkauf",
-            "Verwaltung von Verkaufsimmobilien",
-            "Immobilienverwaltung Verkaufsangebote",
-            "Immobilienverwalter Verkaufsservice",
-            "Verkaufsbereite Immobilienverwaltung",
-        ]
-
-    keyword = random.choice(keywords)
-
-
-    data = api(keyword, country)
-    with open("estate.json", 'r') as f :
+    with open("giveaway.json", 'r') as f :
         local = json.loads(f.read())
-        for new in data :
+        for new in new_data :
             if new not in local :
                 local.append(new)
-        with open("estate.json", 'w') as w :
+                print(new["email"])
+        with open("giveaway.json", 'w') as w :
             json.dump(local, w)
