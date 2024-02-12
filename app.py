@@ -8,7 +8,7 @@ import string
 import json
 import re
 
-
+new_data = []
 def proxy() :
     with open("prx.txt", 'r') as f :
         data = f.readlines()
@@ -25,10 +25,10 @@ headers = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
     }
 
-def linkedin(keyword,new_data) :
+def linkedin(keyword) :
     PROXY = proxy()
-    variation = random.choice(string.ascii_letters).lower() + random.choice(string.ascii_letters).lower()
-    q = f'intitle:"{keyword}" AND "@gmail.com" AND {variation} site:linkedin.com/in'
+    variation = (random.choice(string.ascii_letters) + random.choice(string.ascii_letters) + random.choice(string.ascii_letters)).lower()
+    q = f'intitle:"{keyword}" "@gmail.com" AND {variation} site:linkedin.com/in'
     params = {'q' : q}
     proxies = {'https' : "http://" + PROXY}
     try :   
@@ -65,13 +65,12 @@ def linkedin(keyword,new_data) :
         pass
 
 while True : 
-    new_data = []
-    #countries = ["de","fr", "at", "bg", "cz", "fi", "hu", "lt", "nl", "es", "se", "uk"]
+
     keyword = "business owner"
-    for i in range(250) :
-        t = threading.Thread(target=linkedin, args=(keyword,new_data))
+    for i in range(299) :
+        t = threading.Thread(target=linkedin, args=(keyword,))
         t.start()
-    sleep(6)
+    sleep(5)
 
     with open("giveaway.json", 'r') as f :
         local = json.loads(f.read())
@@ -81,3 +80,4 @@ while True :
                 print(new["email"])
         with open("giveaway.json", 'w') as w :
             json.dump(local, w)
+    new_data = []
